@@ -32,6 +32,12 @@ var support_btn: Button
 
 const CELL_IDLE := Color(0.149, 0.169, 0.235)
 const CELL_ACTIVE := Color(0.337, 0.6, 1.0)
+const COLOR_BTN_NORMAL := Color(0.149, 0.169, 0.235)
+const COLOR_SUCCESS := Color(0.18, 0.78, 0.35)
+const COLOR_ERROR := Color(0.88, 0.24, 0.24)
+
+var visual_btn_style: StyleBoxFlat
+var audio_btn_style: StyleBoxFlat
 
 var visual_history: Array[int] = []
 var audio_history: Array[int] = []
@@ -64,7 +70,7 @@ func _ready():
 	
 	if support_btn:
 		support_btn.text = "Buy me a coffee"
-		support_btn.modulate = Color(0.85, 0.45, 0.45) 
+		support_btn.modulate = Color(1.0, 0.42, 0.52)
 		support_btn.pressed.connect(func(): OS.shell_open("https://ko-fi.com/strwdr"))
 
 	if not audio_player: audio_player = find_child("AudioStreamPlayer", true, false)
@@ -84,6 +90,8 @@ func _ready():
 	if steps_up_btn: steps_up_btn.focus_mode = Control.FOCUS_NONE
 	if steps_down_btn: steps_down_btn.focus_mode = Control.FOCUS_NONE
 
+	_setup_action_buttons()
+
 	if audio_clips.is_empty():
 		_load_audio_from_folder()
 
@@ -98,8 +106,8 @@ func _ready():
 	_setup_legal_attribution()
 
 	if start_btn: start_btn.pressed.connect(_on_start_toggle)
-	if visual_btn: visual_btn.pressed.connect(_on_visual_input)
-	if audio_btn: audio_btn.pressed.connect(_on_audio_input)
+	if visual_btn: visual_btn.gui_input.connect(func(e): if (e is InputEventScreenTouch or e is InputEventMouseButton) and e.is_pressed(): _on_visual_input())
+    if audio_btn: audio_btn.gui_input.connect(func(e): if (e is InputEventScreenTouch or e is InputEventMouseButton) and e.is_pressed(): _on_audio_input())
 	if game_timer: game_timer.timeout.connect(_tick)
 
 	if n_up_btn: n_up_btn.pressed.connect(_on_n_up)
@@ -113,6 +121,27 @@ func _ready():
 	_update_ui_state(false)
 
 	print("--- SYSTEM READY ---")
+
+
+func _setup_action_buttons():
+	for btn in [visual_btn, audio_btn]:
+		if not btn: continue
+		var style := StyleBoxFlat.new()
+		style.bg_color = COLOR_BTN_NORMAL
+		style.set_corner_radius_all(12)
+		style.content_margin_left = 16
+		style.content_margin_right = 16
+		style.content_margin_top = 10
+		style.content_margin_bottom = 10
+
+		btn.add_theme_stylebox_override("normal", style)
+		btn.add_theme_stylebox_override("pressed", style)
+		btn.add_theme_stylebox_override("hover", style)
+		btn.add_theme_stylebox_override("disabled", style)
+		btn.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+
+		if btn == visual_btn: visual_btn_style = style
+		else: audio_btn_style = style
 
 
 func _on_n_up():
@@ -152,13 +181,10 @@ func _update_ui_state(is_running: bool):
 	if steps_value_label:
 		steps_value_label.modulate.a = selector_alpha
 
-	if visual_btn:
-		visual_btn.disabled = !is_running
-		visual_btn.modulate = Color.WHITE
-
-	if audio_btn:
-		audio_btn.disabled = !is_running
-		audio_btn.modulate = Color.WHITE
+	if visual_btn: visual_btn.disabled = true
+	if audio_btn: audio_btn.disabled = true
+	if visual_btn_style: visual_btn_style.bg_color = COLOR_BTN_NORMAL
+	if audio_btn_style: audio_btn_style.bg_color = COLOR_BTN_NORMAL
 
 
 func _load_audio_from_folder():
@@ -295,12 +321,24 @@ func _tick():
 
 	visual_history.append(v_idx); audio_history.append(a_idx)
 
+	# Enable matching buttons only after N steps
+	var can_match = visual_history.size() > n
+	if visual_btn:
+		visual_btn.disabled = not can_match
+		if visual_btn_style: visual_btn_style.bg_color = COLOR_BTN_NORMAL
+	if audio_btn:
+		audio_btn.disabled = not can_match
+		if audio_btn_style: audio_btn_style.bg_color = COLOR_BTN_NORMAL
+
 	if visual_history.size() > n:
 		if visual_history[-1] == visual_history[-1 - n]: v_possible_matches += 1
 		if a_size > 0 and audio_history[-1] == audio_history[-1 - n]: a_possible_matches += 1
 
 	_highlight_cell(v_idx)
-	get_tree().create_timer(flash_time).timeout.connect(_clear_highlights)
+	get_tree().create_timer(flash_time).timeout.connect(func():
+		if not game_timer.is_stopped():
+			_clear_highlights()
+	)
 
 	if not audio_player:
 		print("Round %d: ERROR - AudioPlayer not found" % current_round)
@@ -322,34 +360,40 @@ func _clear_highlights():
 
 
 func _on_visual_input():
-	if v_responded: return
-	if visual_history.size() <= n: return
+	if v_responded or visual_history.size() <= n: return
 
 	v_responded = true
-	var is_match = visual_history[-1] == visual_history[-1 - n]
+	if visual_btn: visual_btn.disabled = true
 
+	var is_match = visual_history[-1] == visual_history[-1 - n]
 	if is_match:
-		v_hits += 1; _feedback(visual_btn, true)
+		v_hits += 1
+		_feedback(visual_btn_style, true)
 	else:
-		v_false_alarms += 1; _feedback(visual_btn, false)
+		v_false_alarms += 1
+		_feedback(visual_btn_style, false)
 
 func _on_audio_input():
-	if a_responded: return
-	if audio_history.size() <= n: return
+	if a_responded or audio_history.size() <= n: return
 
 	a_responded = true
+	if audio_btn: audio_btn.disabled = true
+
 	var is_match = audio_history[-1] == audio_history[-1 - n]
-
 	if is_match:
-		a_hits += 1; _feedback(audio_btn, true)
+		a_hits += 1
+		_feedback(audio_btn_style, true)
 	else:
-		a_false_alarms += 1; _feedback(audio_btn, false)
+		a_false_alarms += 1
+		_feedback(audio_btn_style, false)
 
-func _feedback(btn: Button, success: bool):
-	if not btn: return
+func _feedback(style: StyleBoxFlat, success: bool):
+	if not style: return
+	style.bg_color = COLOR_SUCCESS if success else COLOR_ERROR
+
 	var tween = create_tween()
-	btn.modulate = Color.GREEN if success else Color.RED
-	tween.tween_property(btn, "modulate", Color.WHITE, 0.3) 
+	tween.tween_interval(0.4)
+	tween.tween_property(style, "bg_color", COLOR_BTN_NORMAL, 0.3)
 
 
 func _calculate_and_show_results():
