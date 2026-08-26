@@ -1,0 +1,230 @@
+[gd_scene format=3 uid="uid://cpot4hh1jh03a"]
+
+[ext_resource type="Script" uid="uid://d1w6frtpnmcqg" path="res://main.gd" id="1_ig7tw"]
+[ext_resource type="Theme" uid="uid://bq8thm0dnback" path="res://theme.tres" id="2_theme"]
+[ext_resource type="AudioStream" uid="uid://dgp44stusr4d7" path="res://alphabet/67719__timkahn__h.wav" id="9_0rl1p"]
+[ext_resource type="AudioStream" uid="uid://b5su5hq5pevyq" path="res://alphabet/67722__timkahn__k.wav" id="12_b1qrp"]
+[ext_resource type="AudioStream" uid="uid://dae34wsu8rmwo" path="res://alphabet/67723__timkahn__l.wav" id="13_come4"]
+[ext_resource type="AudioStream" uid="uid://co7wukr1u57x2" path="res://alphabet/67728__timkahn__q.wav" id="18_gngh3"]
+[ext_resource type="AudioStream" uid="uid://bkp6084f737is" path="res://alphabet/67729__timkahn__r.wav" id="19_0n3wm"]
+[ext_resource type="AudioStream" uid="uid://dgo16s542lmtd" path="res://alphabet/67730__timkahn__s.wav" id="20_qnost"]
+
+[sub_resource type="AudioStreamWAV" id="AudioStreamWAV_0xm2m"]
+
+[node name="main" type="Control" unique_id=1510604124]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_ig7tw")
+audio_clips = Array[AudioStream]([ExtResource("9_0rl1p"), ExtResource("12_b1qrp"), ExtResource("13_come4"), ExtResource("18_gngh3"), ExtResource("19_0n3wm"), ExtResource("20_qnost")])
+
+[node name="Timer" type="Timer" parent="." unique_id=1127932035]
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="." unique_id=121684441]
+stream = SubResource("AudioStreamWAV_0xm2m")
+
+[node name="Background" type="ColorRect" parent="." unique_id=173160485]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.078, 0.086, 0.11, 1)
+
+[node name="MainLayout" type="VBoxContainer" parent="." unique_id=1937685527]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
+
+[node name="TopBarTop" type="MarginContainer" parent="MainLayout" unique_id=239168553]
+layout_mode = 2
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_top = 100
+theme_override_constants/margin_right = 50
+
+[node name="Title" type="Label" parent="MainLayout/TopBarTop" unique_id=1361043857]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.337, 0.6, 1, 1)
+theme_override_font_sizes/font_size = 44
+text = "DUAL N-BACK"
+horizontal_alignment = 1
+
+[node name="TopBar" type="MarginContainer" parent="MainLayout" unique_id=1119950596]
+layout_mode = 2
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_right = 50
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MainLayout/TopBar" unique_id=384131319]
+layout_mode = 2
+
+[node name="NLabel" type="Label" parent="MainLayout/TopBar/HBoxContainer" unique_id=47795974]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+text = "N-BACK: "
+
+[node name="NDown" type="Button" parent="MainLayout/TopBar/HBoxContainer" unique_id=1715728441]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+text = "-"
+
+[node name="NValue" type="Label" parent="MainLayout/TopBar/HBoxContainer" unique_id=1206976259]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+text = "2"
+horizontal_alignment = 1
+
+[node name="NUp" type="Button" parent="MainLayout/TopBar/HBoxContainer" unique_id=128806658]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+text = "+"
+
+[node name="Spacer" type="Control" parent="MainLayout/TopBar/HBoxContainer" unique_id=912776282]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="StartButton" type="Button" parent="MainLayout/TopBar/HBoxContainer" unique_id=886895421]
+custom_minimum_size = Vector2(120, 50)
+layout_mode = 2
+text = "START"
+
+[node name="StepsBar" type="MarginContainer" parent="MainLayout" unique_id=1600807653]
+layout_mode = 2
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_right = 50
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MainLayout/StepsBar" unique_id=798584256]
+layout_mode = 2
+
+[node name="StepsLabel" type="Label" parent="MainLayout/StepsBar/HBoxContainer" unique_id=1706469892]
+custom_minimum_size = Vector2(160, 0)
+layout_mode = 2
+text = "STEPS: "
+
+[node name="StepsDown" type="Button" parent="MainLayout/StepsBar/HBoxContainer" unique_id=57621154]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+text = "-"
+
+[node name="StepsValue" type="Label" parent="MainLayout/StepsBar/HBoxContainer" unique_id=235848427]
+custom_minimum_size = Vector2(50, 0)
+layout_mode = 2
+text = "20"
+horizontal_alignment = 1
+
+[node name="StepsUp" type="Button" parent="MainLayout/StepsBar/HBoxContainer" unique_id=2029845026]
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+text = "+"
+
+[node name="GridArea" type="AspectRatioContainer" parent="MainLayout" unique_id=1339910678]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="GridContainer" type="GridContainer" parent="MainLayout/GridArea" unique_id=754059774]
+layout_mode = 2
+theme_override_constants/h_separation = 14
+theme_override_constants/v_separation = 14
+columns = 3
+
+[node name="ButtonArea" type="MarginContainer" parent="MainLayout" unique_id=1527060833]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 100
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MainLayout/ButtonArea" unique_id=1480316332]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="VisualButton" type="Button" parent="MainLayout/ButtonArea/HBoxContainer" unique_id=1610850163]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "VISUAL"
+
+[node name="AudioButton" type="Button" parent="MainLayout/ButtonArea/HBoxContainer" unique_id=525520364]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "AUDIO"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MainLayout" unique_id=29089309]
+layout_mode = 2
+
+[node name="Spacer" type="Control" parent="MainLayout/HBoxContainer" unique_id=142963337]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LegalButton" type="Button" parent="MainLayout/HBoxContainer" unique_id=1900868926]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "Credits"
+
+[node name="SupportButton" type="Button" parent="MainLayout/HBoxContainer" unique_id=788070844]
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+text = "Support"
+
+[node name="Spacer2" type="Control" parent="MainLayout/HBoxContainer" unique_id=775975968]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LegalPanel" type="Panel" parent="." unique_id=642139329]
+visible = false
+custom_minimum_size = Vector2(500, 850)
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LegalLabel" type="RichTextLabel" parent="LegalPanel" unique_id=1450774292]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ResultsPanel" type="Panel" parent="." unique_id=1820866266]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ResultsLabel" type="Label" parent="ResultsPanel" unique_id=613478627]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -0.5
+offset_top = -21.0
+offset_right = 0.5
+offset_bottom = 21.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.902, 0.918, 0.961, 1)
+theme_override_font_sizes/font_size = 30
+horizontal_alignment = 1
+vertical_alignment = 1
