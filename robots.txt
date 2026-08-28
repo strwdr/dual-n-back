@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://strwdr.github.io/dual-n-back/sitemap.xml

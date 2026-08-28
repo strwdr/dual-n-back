@@ -2,113 +2,363 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
-		<title>Dual-N-Back</title>
-		<style>
-html, body, #canvas {
-	margin: 0;
-	padding: 0;
-	border: 0;
-}
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+		
+		<!-- Security: Content Security Policy -->
+		<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' data: blob:; worker-src 'self' blob:;">
+		
+		<title>Dual N-Back - Working Memory Training</title>
+		
+		<meta name="title" content="Dual N-Back - Working Memory Training">
+		<meta name="description" content="Dual N-Back memory game in the browser. Free, open-source, no ads, no tracking.">
+		<meta name="keywords" content="dual n-back, dual n back, working memory, cognitive training, fluid intelligence, n-back test, godot web game">
+		<meta name="author" content="strwdr">
+		<meta name="robots" content="index, follow">
+		<link rel="canonical" href="https://strwdr.github.io/dual-n-back/">
 
-body {
-	color: white;
-	background-color: black;
-	overflow: hidden;
-	touch-action: none;
-}
+		<meta property="og:type" content="website">
+		<meta property="og:url" content="https://strwdr.github.io/dual-n-back/">
+		<meta property="og:title" content="Dual N-Back - Working Memory Training">
+		<meta property="og:description" content="Dual N-Back memory game in the browser. Free, open-source, no ads, no tracking.">
+		<meta property="og:image" content="https://strwdr.github.io/dual-n-back/index.png">
 
-#canvas {
-	display: block;
-}
+		<meta property="twitter:card" content="summary_large_image">
+		<meta property="twitter:url" content="https://strwdr.github.io/dual-n-back/">
+		<meta property="twitter:title" content="Dual N-Back - Working Memory Training">
+		<meta property="twitter:description" content="Dual N-Back memory game in the browser. Free, open-source, no ads, no tracking.">
+		<meta property="twitter:image" content="https://strwdr.github.io/dual-n-back/index.png">
 
-#canvas:focus {
-	outline: none;
-}
+		<script type="application/ld+json">
+		{
+			"@context": "https://schema.org",
+			"@graph": [
+				{
+					"@type": "WebApplication",
+					"name": "Dual N-Back",
+					"url": "https://strwdr.github.io/dual-n-back/",
+					"applicationCategory": "GameApplication",
+					"genre": ["Memory", "Puzzle"],
+					"operatingSystem": "All",
+					"browserRequirements": "Requires WebAssembly and WebGL",
+					"offers": {
+						"@type": "Offer",
+						"price": "0",
+						"priceCurrency": "USD"
+					},
+					"description": "Play Dual N-Back in your browser. Free and open source memory training."
+				},
+				{
+					"@type": "FAQPage",
+					"mainEntity": [
+						{
+							"@type": "Question",
+							"name": "What is Dual N-Back?",
+							"acceptedAnswer": {
+								"@type": "Answer",
+								"text": "Dual N-Back is a memory training exercise where you track a visual position on a grid and an audio cue at the same time."
+							}
+						},
+						{
+							"@type": "Question",
+							"name": "How does the N parameter work?",
+							"acceptedAnswer": {
+								"@type": "Answer",
+								"text": "N is the delay. In 2-Back, you check if the current turn matches what happened 2 turns ago. In 3-Back, you check 3 turns ago."
+							}
+						}
+					]
+				}
+			]
+		}
+		</script>
 
-#status, #status-splash, #status-progress {
-	position: absolute;
-	left: 0;
-	right: 0;
-}
-
-#status, #status-splash {
-	top: 0;
-	bottom: 0;
-}
-
-#status {
-	background-color: #242424;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	visibility: hidden;
-}
-
-#status-splash {
-	max-height: 100%;
-	max-width: 100%;
-	margin: auto;
-}
-
-#status-splash.show-image--false {
-	display: none;
-}
-
-#status-splash.fullsize--true {
-	height: 100%;
-	width: 100%;
-	object-fit: contain;
-}
-
-#status-splash.use-filter--false {
-	image-rendering: pixelated;
-}
-
-#status-progress, #status-notice {
-	display: none;
-}
-
-#status-progress {
-	bottom: 10%;
-	width: 50%;
-	margin: 0 auto;
-}
-
-#status-notice {
-	background-color: #5b3943;
-	border-radius: 0.5rem;
-	border: 1px solid #9b3943;
-	color: #e0e0e0;
-	font-family: 'Noto Sans', 'Droid Sans', Arial, sans-serif;
-	line-height: 1.3;
-	margin: 0 2rem;
-	overflow: hidden;
-	padding: 1rem;
-	text-align: center;
-	z-index: 1;
-}
-		</style>
 		<link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
-<link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>
-<link rel="manifest" href="index.manifest.json">
+		<link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>
+		<link rel="manifest" href="index.manifest.json">
 
+		<style>
+			:root {
+				--bg: #0f1115;
+				--card: #181a20;
+				--text: #e6e6e6;
+				--muted: #9ba1a6;
+				--accent: #22c55e;
+				--border: #262930;
+			}
+			* {
+				box-sizing: border-box;
+			}
+			html, body {
+				margin: 0;
+				padding: 0;
+				background-color: var(--bg);
+				color: var(--text);
+				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+				line-height: 1.6;
+				overflow-x: hidden;
+				overflow-y: auto;
+			}
+			header, main, footer {
+				max-width: 820px;
+				margin: 0 auto;
+				padding: 16px;
+			}
+			h1 {
+				font-size: 1.8rem;
+				margin-bottom: 4px;
+				text-align: center;
+				color: #fff;
+			}
+			.subtitle {
+				text-align: center;
+				color: var(--muted);
+				margin-top: 0;
+				font-size: 0.95rem;
+			}
+			h2 {
+				font-size: 1.2rem;
+				color: var(--accent);
+				margin-top: 0;
+			}
+			h3 {
+				font-size: 1rem;
+				margin-bottom: 4px;
+				color: #fff;
+			}
+			p, li {
+				color: var(--muted);
+				font-size: 0.95rem;
+			}
+
+			/* SEO Game Wrapper (Before click) */
+			#game-wrapper {
+				position: relative;
+				width: 100%;
+				max-width: 800px;
+				aspect-ratio: 16 / 9;
+				margin: 16px auto;
+				background: #000;
+				border-radius: 6px;
+				overflow: hidden;
+				border: 1px solid var(--border);
+			}
+
+			/* Start Button Screen */
+			#start-screen {
+				position: absolute;
+				inset: 0;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				background: #000;
+				z-index: 20;
+				cursor: pointer;
+			}
+			#start-btn {
+				padding: 16px 32px;
+				font-size: 1.2rem;
+				background: var(--accent);
+				color: #000;
+				border: none;
+				border-radius: 6px;
+				cursor: pointer;
+				font-weight: bold;
+				transition: opacity 0.2s;
+			}
+			#start-btn:hover {
+				opacity: 0.9;
+			}
+
+			/* GAME ACTIVE MODE: Takes over the whole window */
+			body.game-active {
+				overflow: hidden !important;
+				touch-action: none !important;
+				background-color: black !important;
+			}
+			body.game-active header,
+			body.game-active section.card,
+			body.game-active footer {
+				display: none !important;
+			}
+			body.game-active main {
+				padding: 0 !important;
+				max-width: none !important;
+				margin: 0 !important;
+			}
+			body.game-active #game-wrapper {
+				position: fixed !important;
+				top: 0 !important;
+				left: 0 !important;
+				right: 0 !important;
+				bottom: 0 !important;
+				width: 100vw !important;
+				height: 100vh !important;
+				max-width: none !important;
+				margin: 0 !important;
+				border: none !important;
+				border-radius: 0 !important;
+				aspect-ratio: auto !important;
+				z-index: 9999 !important;
+			}
+
+			/* Godot Canvas & Status Elements */
+			#canvas {
+				display: block;
+				width: 100%;
+				height: 100%;
+			}
+			#canvas:focus {
+				outline: none;
+			}
+			#status, #status-splash, #status-progress {
+				position: absolute;
+				left: 0;
+				right: 0;
+			}
+			#status, #status-splash {
+				top: 0;
+				bottom: 0;
+			}
+			#status {
+				background-color: #242424;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				visibility: hidden;
+				z-index: 10;
+			}
+			#status-splash {
+				max-height: 100%;
+				max-width: 100%;
+				margin: auto;
+			}
+			#status-splash.show-image--false {
+				display: none;
+			}
+			#status-splash.fullsize--true {
+				height: 100%;
+				width: 100%;
+				object-fit: contain;
+			}
+			#status-splash.use-filter--false {
+				image-rendering: pixelated;
+			}
+			#status-progress, #status-notice {
+				display: none;
+			}
+			#status-progress {
+				bottom: 10%;
+				width: 50%;
+				margin: 0 auto;
+			}
+			#status-notice {
+				background-color: #5b3943;
+				border-radius: 0.5rem;
+				border: 1px solid #9b3943;
+				color: #e0e0e0;
+				font-family: 'Noto Sans', 'Droid Sans', Arial, sans-serif;
+				line-height: 1.3;
+				margin: 0 2rem;
+				overflow: hidden;
+				padding: 1rem;
+				text-align: center;
+				z-index: 11;
+			}
+			.card {
+				background: var(--card);
+				padding: 20px;
+				border-radius: 6px;
+				margin-top: 16px;
+				border: 1px solid var(--border);
+			}
+			.columns {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 16px;
+			}
+			@media (max-width: 600px) {
+				.columns { grid-template-columns: 1fr; }
+			}
+			footer {
+				text-align: center;
+				font-size: 0.85rem;
+				border-top: 1px solid var(--border);
+				margin-top: 32px;
+				color: var(--muted);
+			}
+			a {
+				color: var(--accent);
+				text-decoration: none;
+			}
+			a:hover {
+				text-decoration: underline;
+			}
+		</style>
 	</head>
 	<body>
-		<canvas id="canvas">
-			Your browser does not support the canvas tag.
-		</canvas>
 
-		<noscript>
-			Your browser does not support JavaScript.
-		</noscript>
+		<header>
+			<h1>Dual N-Back</h1>
+			<p class="subtitle">
+				Browser-based memory training. No ads, no tracking, works offline.<br>
+				<a href="https://github.com/strwdr/dual-n-back" target="_blank" rel="noopener" style="display: inline-block; margin-top: 8px; font-weight: 500;">Source Code on GitHub</a>
+			</p>
+		</header>
 
-		<div id="status">
-			<img id="status-splash" class="show-image--true fullsize--true use-filter--true" src="index.png" alt="">
-			<progress id="status-progress"></progress>
-			<div id="status-notice"></div>
-		</div>
+		<main>
+			<div id="game-wrapper">
+				<div id="start-screen">
+					<button id="start-btn">Click to Play</button>
+				</div>
+
+				<canvas id="canvas">
+					Your browser does not support the canvas tag.
+				</canvas>
+
+				<div id="status">
+					<img id="status-splash" class="show-image--true fullsize--true use-filter--true" src="index.png" alt="">
+					<progress id="status-progress"></progress>
+					<div id="status-notice"></div>
+				</div>
+			</div>
+
+			<noscript>
+				<p style="text-align:center; color:#ff6b6b;">Your browser does not support JavaScript or it is currently disabled.</p>
+			</noscript>
+
+			<section class="card">
+				<h2>How to play</h2>
+				<p>Every turn, a square flashes on the grid and a letter is spoken. Your goal is to spot matches between the current turn and the one from exactly <strong>N turns ago</strong>.</p>
+				
+				<div class="columns">
+					<div>
+						<h3>Position</h3>
+						<p>Match if the square is in the exact same spot as N turns ago.</p>
+					</div>
+					<div>
+						<h3>Audio</h3>
+						<p>Match if the spoken letter is exactly the same as N turns ago.</p>
+					</div>
+				</div>
+				<p>Both, one, or neither can match on any given step. In <em>2-Back</em>, compare the current step to 2 steps ago. In <em>3-Back</em>, compare it to 3 steps ago.</p>
+			</section>
+
+			<section class="card">
+				<h2>About the task</h2>
+				<p>Dual N-Back is a cognitive training exercise intended to improve working memory. By tracking visual and audio cues simultaneously, you force your brain to actively update its short-term memory buffer and filter out older information.</p>
+			</section>
+
+			<section class="card">
+				<h2>FAQ</h2>
+				<h3>Does this save my data?</h3>
+				<p>No. The game runs entirely in your browser. No data leaves your device.</p>
+			</section>
+		</main>
+
+		<footer>
+			<p>Created by strwdr</p>
+		</footer>
 
 		<script src="index.js"></script>
 		<script>
@@ -175,7 +425,6 @@ const engine = new Engine(GODOT_CONFIG);
 			} catch (err) {
 				serviceWorkerRegistrationPromise = Promise.reject(new Error('Service worker registration failed.'));
 			}
-			// There's a chance that installing the service worker would fix the issue
 			Promise.race([
 				serviceWorkerRegistrationPromise.then((registration) => {
 					if (registration != null) {
@@ -183,39 +432,46 @@ const engine = new Engine(GODOT_CONFIG);
 					}
 					return registration;
 				}).then(() => engine.installServiceWorker()),
-				// For some reason, `getRegistration()` can stall
 				new Promise((resolve) => {
 					setTimeout(() => resolve(), 2000);
 				}),
 			]).then(() => {
-				// Reload if there was no error.
 				window.location.reload();
 			}).catch((err) => {
 				console.error('Error while registering service worker:', err);
 			});
 		} else {
-			// Display the message as usual
 			const missingMsg = 'Error\nThe following features required to run Godot projects on the Web are missing:\n';
 			displayFailureNotice(missingMsg + missing.join('\n'));
 		}
 	} else {
-		setStatusMode('progress');
-		engine.startGame({
-			'onProgress': function (current, total) {
-				if (current > 0 && total > 0) {
-					statusProgress.value = current;
-					statusProgress.max = total;
-				} else {
-					statusProgress.removeAttribute('value');
-					statusProgress.removeAttribute('max');
-				}
-			},
-		}).then(() => {
-			setStatusMode('hidden');
-		}, displayFailureNotice);
+		const startScreen = document.getElementById('start-screen');
+		
+		startScreen.addEventListener('click', () => {
+			// Hide the play button overlay
+			startScreen.style.display = 'none';
+			
+			// ACTIVATE FULL SCREEN TAKEOVER MODE
+			document.body.classList.add('game-active');
+			
+			// Show progress and start downloading WASM
+			setStatusMode('progress');
+			engine.startGame({
+				'onProgress': function (current, total) {
+					if (current > 0 && total > 0) {
+						statusProgress.value = current;
+						statusProgress.max = total;
+					} else {
+						statusProgress.removeAttribute('value');
+						statusProgress.removeAttribute('max');
+					}
+				},
+			}).then(() => {
+				setStatusMode('hidden');
+			}, displayFailureNotice);
+		});
 	}
 }());
 		</script>
 	</body>
 </html>
-
